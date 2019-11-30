@@ -1,3 +1,4 @@
 python manage.py runserver 0.0.0.0:8000 // run server 
 python manage.py  makemigrations profile_api  // make migration 
 python manage.py migrate // do migration 
+python manage.py createsuperuser // createsuperuser
