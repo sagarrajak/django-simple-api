@@ -1,8 +1,10 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import  status
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
-from profile_api import serializers
+from profile_api import serializers, models, permission
 
 
 class HelloApiView(APIView):
@@ -36,3 +38,52 @@ class HelloApiView(APIView):
     def delete(self, request, pk=None):
         """Delete a entry from database """
         return Response({'method': 'DELETE'})
+
+
+class HelloViewSet(viewsets.ViewSet):
+    """ Test Api ViewSet """
+
+    serializer_class = serializers.HelloSerializers;
+
+    def list(self, request):
+        """return as hello message"""
+        a_viewset = [
+            "The need for boilerplate can be reduced through high-level mechanisms such ",
+            "business.Columns and other pieces that were distribute"
+        ]
+        return Response({'message': 'hello', 'a_viewset': a_viewset});
+
+    def create(self, request):
+        """Create new Hello message"""
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            name = serializer.validated_data.get('name')
+            message = f'Hello {name}!'
+            return Response({'message': message})
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def retrieve(self, request, pk=None):
+        """ Getting a object by it's id """
+        return Response({'http_method': 'GET'})
+
+    def update(self, request, pk=None):
+        """ Handle updating an object """
+        return Response({'http_method': 'PUT'})
+
+    def partial_update(self, request, pk=None):
+        return Response({'http_method': 'PATCH'})
+
+    def destroy(self, request, pk=None):
+        return Response({'http_method': 'DELETE'})
+
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """ Handle creating and updating profile """
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permission.UpdateOwnProfile,)
